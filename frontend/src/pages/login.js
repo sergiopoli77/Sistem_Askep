@@ -28,7 +28,7 @@ const Login = ({ onLogin }) => {
               <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
-          <h1>Sistem Asuhan Keperawatan DevOps</h1>
+          <h1>Sistem Asuhan Keperawatan DevOps Python Group</h1>
           <p>Platform Digital untuk Profesional Kesehatan</p>
         </div>
         
