@@ -1,19 +1,78 @@
 import React, { useState } from 'react';
 import '../assets/Login.css';
+import { db } from '../config/firebase';
+import { ref, get } from 'firebase/database';
 
 const Login = ({ onLogin }) => {
+  const [role, setRole] = useState('perawat');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('perawat');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Dummy login logic, replace with real authentication
-    if (username && password) {
-      onLogin({ username, role });
-    } else {
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const name = (username || '').trim();
+    if (!name || !password) {
       setError('Username dan password wajib diisi!');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const usersRef = ref(db, 'users');
+      const snap = await get(usersRef);
+
+      if (!snap.exists()) {
+        setError('User tidak ditemukan.');
+        setLoading(false);
+        return;
+      }
+
+      let userRecord = null;
+      let uid = null;
+
+      // Pencarian username case-insensitive
+      snap.forEach((child) => {
+        const data = child.val();
+        if (
+          data.nama &&
+          data.nama.toLowerCase().trim() === name.toLowerCase().trim()
+        ) {
+          userRecord = data;
+          uid = child.key;
+        }
+      });
+
+      if (!userRecord) {
+        setError('User tidak ditemukan.');
+        setLoading(false);
+        return;
+      }
+
+      // validasi password
+      if (String(userRecord.password).trim() === String(password).trim()) {
+        const displayName = userRecord.nama || name;
+        const userRole = userRecord.role
+          ? userRecord.role.toLowerCase()
+          : role;
+
+        // Kirim ke App.js (pindah ke dashboard)
+        onLogin({ username: displayName, role: userRole, uid });
+        setLoading(false);
+        return;
+      }
+
+      setError('Password salah.');
+      setLoading(false);
+
+    } catch (err) {
+      console.error('Login RTDB error:', err);
+      setError('Terjadi error saat verifikasi. Cek koneksi.');
+      setLoading(false);
     }
   };
 
@@ -28,22 +87,26 @@ const Login = ({ onLogin }) => {
               <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
-          <h1>Sistem Asuhan Keperawatan Python Group </h1>
+          <h1>Sistem Asuhan Keperawatan</h1>
           <p>Platform Digital untuk Profesional Kesehatan</p>
         </div>
-        
+
         <form className="login-form" onSubmit={handleSubmit}>
           <h2>Masuk ke Akun Anda</h2>
           {error && <div className="error">{error}</div>}
-          
+
           <div className="input-group">
             <label htmlFor="role">Peran</label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
               <option value="perawat">👩‍⚕️ Perawat</option>
               <option value="kepala">👨‍💼 Kepala Rumah Sakit</option>
             </select>
           </div>
-          
+
           <div className="input-group">
             <label htmlFor="username">Username</label>
             <input
@@ -54,7 +117,7 @@ const Login = ({ onLogin }) => {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          
+
           <div className="input-group">
             <label htmlFor="password">Password</label>
             <input
@@ -65,15 +128,15 @@ const Login = ({ onLogin }) => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          
-          <button type="submit" className="login-btn">
-            <span>Masuk</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+
+          <button type="submit" className="login-btn" disabled={loading} aria-busy={loading}>
+            {loading ? 'Memeriksa...' : 'Masuk'}
           </button>
+          <div style={{marginTop:12,fontSize:13, textAlign: 'center'}}>
+            Belum punya akun? <a href="/signup">Daftar di sini</a>
+          </div>
         </form>
-        
+
         <div className="login-footer">
           <p>© 2025 Sistem Askep Digital</p>
         </div>
