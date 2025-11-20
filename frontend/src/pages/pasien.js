@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../assets/Patients.css';
+import { db } from '../config/firebase';
+import { ref, push, set, get } from 'firebase/database';
+import AddPatients from '../components/addpatients';
 
 const Pasien = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  // Data contoh pasien
-  const [patients] = useState([
+  // Data contoh pasien (fallback)
+  const [patients, setPatients] = useState([
     {
       id: 'P001',
       rm: 'RM001',
@@ -59,6 +62,36 @@ const Pasien = () => {
     }
   ]);
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
+
+  // load pasien from RTDB on mount (if exists)
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const pasienRef = ref(db, 'pasien');
+        const snap = await get(pasienRef);
+        if (snap.exists()) {
+          const val = snap.val();
+          const list = Object.keys(val).map((key) => ({
+            id: key,
+            rm: val[key].rm || '',
+            name: val[key].name || val[key].nama || '',
+            age: val[key].age || val[key].usia || '',
+            gender: val[key].gender || val[key].jenisKelamin || '',
+            diagnosis: val[key].diagnosis || '',
+            status: val[key].status || '',
+            avatar: (val[key].name || val[key].nama || 'P').charAt(0).toUpperCase()
+          }));
+          setPatients(list);
+        }
+      } catch (err) {
+        console.error('Gagal load pasien dari RTDB', err);
+      }
+    };
+    load();
+  }, []);
+
   // Filter pasien berdasarkan pencarian dan status
   const filteredPatients = patients.filter(patient => {
     const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,8 +115,38 @@ const Pasien = () => {
   };
 
   const handleAddPatient = () => {
-    // Logic untuk menambah pasien baru
-    console.log('Menambah pasien baru');
+    setShowAddModal(true);
+  };
+
+  const handleSaveFromModal = async (payload) => {
+    if (!payload || !payload.name || !payload.rm) return;
+    setLoadingAdd(true);
+    try {
+      const pasienRef = ref(db, 'pasien');
+      const newRef = push(pasienRef);
+      await set(newRef, { ...payload, createdAt: Date.now() });
+
+      setPatients(prev => [
+        {
+          id: newRef.key,
+          rm: payload.rm,
+          name: payload.name,
+          age: payload.age,
+          gender: payload.gender,
+          diagnosis: payload.diagnosis,
+          status: payload.status,
+          avatar: payload.name.charAt(0).toUpperCase()
+        },
+        ...prev
+      ]);
+
+      setShowAddModal(false);
+    } catch (err) {
+      console.error('Gagal menambah pasien', err);
+      alert('Gagal menambah pasien. Cek koneksi.');
+    } finally {
+      setLoadingAdd(false);
+    }
   };
 
   const handleViewPatient = (patient) => {
@@ -122,6 +185,7 @@ const Pasien = () => {
           </button>
         </div>
       </div>
+      <AddPatients show={showAddModal} onClose={() => setShowAddModal(false)} onSave={handleSaveFromModal} saving={loadingAdd} />
 
       <div className="patients-stats">
         <div className="stat-card-small">
