@@ -92,6 +92,14 @@ const Signup = ({ onRegistered }) => {
         <label>Nama</label>
         <input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Nama lengkap" />
 
+        <label>Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email" 
+        />
+
         <label>Telepon</label>
         <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="No. HP" />
 
