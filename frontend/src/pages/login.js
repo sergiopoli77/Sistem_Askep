@@ -23,7 +23,8 @@ const Login = ({ onLogin }) => {
     }
 //sadasd
     try {
-      const usersRef = ref(db, 'users');
+      // look for users inside `perawat` node (signup stores perawat accounts)
+      const usersRef = ref(db, 'perawat');
       const snap = await get(usersRef);
 
       if (!snap.exists()) {

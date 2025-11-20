@@ -34,7 +34,8 @@ const Signup = ({ onRegistered }) => {
 
     setLoading(true);
     try {
-      const usersRef = ref(db, 'users');
+      // store registered accounts under the `perawat` node
+      const usersRef = ref(db, 'perawat');
       // check uniqueness: nama or email
       const snap = await get(usersRef);
       if (snap.exists()) {
