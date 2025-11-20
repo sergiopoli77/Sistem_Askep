@@ -91,12 +91,6 @@ const Signup = ({ onRegistered }) => {
         <label>Nama</label>
         <input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Nama lengkap" />
 
-        <label>Peran</label>
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="perawat">Perawat</option>
-          <option value="kepala">Kepala Rumah Sakit</option>
-        </select>
-
         <label>Telepon</label>
         <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="No. HP" />
 
@@ -118,7 +112,7 @@ const Signup = ({ onRegistered }) => {
 
         <button type="submit" disabled={loading}>{loading ? 'Membuat...' : 'Daftar'}</button>
 
-        <div className="small-note">Sudah punya akun? <a href="/">Masuk</a></div>
+        <div style={{marginTop:12,fontSize:13,textAlign:'center'}}>Sudah punya akun? <a href="/">Masuk</a></div>
       </form>
     </div>
   );

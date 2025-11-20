@@ -103,7 +103,6 @@ const Login = ({ onLogin }) => {
               onChange={(e) => setRole(e.target.value)}
             >
               <option value="perawat">👩‍⚕️ Perawat</option>
-              <option value="kepala">👨‍💼 Kepala Rumah Sakit</option>
             </select>
           </div>
 

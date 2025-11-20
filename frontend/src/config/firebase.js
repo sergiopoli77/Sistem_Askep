@@ -1,19 +1,23 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyChB66UK0oB7RTOPcUl5jIS3weDzYXPlGA",
-  authDomain: "devops-27a44.firebaseapp.com",
-  databaseURL: "https://devops-27a44-default-rtdb.firebaseio.com",
-  projectId: "devops-27a44",
-  storageBucket: "devops-27a44.firebasestorage.app",
-  messagingSenderId: "1073602467369",
-  appId: "1:1073602467369:web:0721667b0d53d2a58eee38",
+  apiKey: "AIzaSyDIqIippknMoHR8KjQOJEID54U-2QECPOw",
+  authDomain: "devops-project-4a975.firebaseapp.com",
+  databaseURL: "https://devops-project-4a975-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "devops-project-4a975",
+  storageBucket: "devops-project-4a975.firebasestorage.app",
+  messagingSenderId: "587944696107",
+  appId: "1:587944696107:web:46c75a52b4e979add90d6e"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+// Initialize Realtime Database and export for use in pages
+const db = getDatabase(app);
 
-// Export Realtime Database instance
-export const db = getDatabase(app);
-export default app;
+export { app, db };
